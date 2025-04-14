@@ -7,8 +7,22 @@ services:
     restart: unless-stopped
     ports:
       - "80:80"
+      - "443:443"
+    volumes:
+      - ./ssl:/etc/nginx/ssl
+      - /etc/letsencrypt:/etc/letsencrypt
+      - /var/lib/letsencrypt:/var/lib/letsencrypt
     networks:
       - devops-network
+
+  certbot:
+    image: certbot/certbot
+    container_name: certbot
+    volumes:
+      - /etc/letsencrypt:/etc/letsencrypt
+      - /var/lib/letsencrypt:/var/lib/letsencrypt
+      - ./webroot:/webroot
+    command: certonly --webroot --webroot-path=/webroot --email denizarar@teknasyon.com --agree-tos --no-eff-email -d denizarar.store -d www.denizarar.store
 
 networks:
   devops-network:

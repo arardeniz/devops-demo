@@ -43,6 +43,6 @@ jobs:
         key: ${{ env.SSH_PRIVATE_KEY }}
         script: |
           cd /var/www/devops-demo
-          docker-compose -f docker-compose.yml down
+          docker-compose down || true
           docker build -t devops-demo .
-          docker-compose -f docker-compose.yml up -d 
+          docker-compose up -d 

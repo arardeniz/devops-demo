@@ -10,7 +10,6 @@ services:
       - "443:443"
     volumes:
       - ./webroot:/webroot
-      - ./ssl:/etc/nginx/ssl
       - /etc/letsencrypt:/etc/letsencrypt
     networks:
       - devops-network
@@ -19,10 +18,9 @@ services:
     image: certbot/certbot
     container_name: certbot
     volumes:
-      - /etc/letsencrypt:/etc/letsencrypt
-      - /var/lib/letsencrypt:/var/lib/letsencrypt
       - ./webroot:/webroot
-    command: certonly --webroot --webroot-path=/webroot --email denizarar@teknasyon.com --agree-tos --no-eff-email -d denizarar.store -d www.denizarar.store
+      - /etc/letsencrypt:/etc/letsencrypt
+    command: certonly --webroot --webroot-path=/webroot --email denizarar@teknasyon.com --agree-tos --no-eff-email --force-renewal -d denizarar.store -d www.denizarar.store
 
 networks:
   devops-network:

@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   web:
-    image: devops-demo:latest
+    image: ${DOCKER_USERNAME}/devops-demo:latest
     container_name: devops-demo
     restart: unless-stopped
     ports:

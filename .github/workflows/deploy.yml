@@ -1,0 +1,48 @@
+name: Deploy DevOps Demo
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+env:
+  SERVER_HOST: "34.29.126.51"
+  SERVER_USERNAME: "root"
+  SSH_PRIVATE_KEY: |
+    -----BEGIN OPENSSH PRIVATE KEY-----
+    b3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAAAMwAAAAtzc2gtZW
+    QyNTUxOQAAACDHqrf/s8DLPNa/9q749+1D8qqaWtw6YWcKbJmbiqY7qgAAAJjsDGMD7Axj
+    AwAAAAtzc2gtZWQyNTUxOQAAACDHqrf/s8DLPNa/9q749+1D8qqaWtw6YWcKbJmbiqY7qg
+    AAAED3ydv7MCVWDmS0+pVXbEqv7xEl2+K9W5RSGqICPaX+I8eqt/+zwMs81r/2rvj37UPy
+    qppa3DphZwpsmZuKpjuqAAAADmdpdGh1Yi1hY3Rpb25zAQIDBAUGBw==
+    -----END OPENSSH PRIVATE KEY-----
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v2
+      
+    - name: Copy files to server
+      uses: appleboy/scp-action@master
+      with:
+        host: ${{ env.SERVER_HOST }}
+        username: ${{ env.SERVER_USERNAME }}
+        key: ${{ env.SSH_PRIVATE_KEY }}
+        source: "."
+        target: "/var/www/devops-demo"
+        
+    - name: Build and Deploy on Server
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ env.SERVER_HOST }}
+        username: ${{ env.SERVER_USERNAME }}
+        key: ${{ env.SSH_PRIVATE_KEY }}
+        script: |
+          cd /var/www/devops-demo
+          docker-compose -f docker-compose.yml down
+          docker build -t devops-demo .
+          docker-compose -f docker-compose.yml up -d 

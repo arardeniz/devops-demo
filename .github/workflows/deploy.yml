@@ -1,4 +1,4 @@
-name: Deploy DevOps Demo
+name: Quality Checks
 
 on:
   push:
@@ -6,18 +6,6 @@ on:
   pull_request:
     branches: [ main ]
   workflow_dispatch:
-
-env:
-  SERVER_HOST: "34.29.126.51"
-  SERVER_USERNAME: "root"
-  SSH_PRIVATE_KEY: |
-    -----BEGIN OPENSSH PRIVATE KEY-----
-    b3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAAAMwAAAAtzc2gtZW
-    QyNTUxOQAAACDHqrf/s8DLPNa/9q749+1D8qqaWtw6YWcKbJmbiqY7qgAAAJjsDGMD7Axj
-    AwAAAAtzc2gtZWQyNTUxOQAAACDHqrf/s8DLPNa/9q749+1D8qqaWtw6YWcKbJmbiqY7qg
-    AAAED3ydv7MCVWDmS0+pVXbEqv7xEl2+K9W5RSGqICPaX+I8eqt/+zwMs81r/2rvj37UPy
-    qppa3DphZwpsmZuKpjuqAAAADmdpdGh1Yi1hY3Rpb25zAQIDBAUGBw==
-    -----END OPENSSH PRIVATE KEY-----
 
 jobs:
   quality:
@@ -34,10 +22,36 @@ jobs:
     - name: Test Suite
       run: echo "Running test suite..."
 
+---
+name: Manual Deploy
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Deploy Environment'
+        required: true
+        default: 'production'
+        type: choice
+        options:
+        - production
+        - staging
+
+env:
+  SERVER_HOST: "34.29.126.51"
+  SERVER_USERNAME: "root"
+  SSH_PRIVATE_KEY: |
+    -----BEGIN OPENSSH PRIVATE KEY-----
+    b3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAAAMwAAAAtzc2gtZW
+    QyNTUxOQAAACDHqrf/s8DLPNa/9q749+1D8qqaWtw6YWcKbJmbiqY7qgAAAJjsDGMD7Axj
+    AwAAAAtzc2gtZWQyNTUxOQAAACDHqrf/s8DLPNa/9q749+1D8qqaWtw6YWcKbJmbiqY7qg
+    AAAED3ydv7MCVWDmS0+pVXbEqv7xEl2+K9W5RSGqICPaX+I8eqt/+zwMs81r/2rvj37UPy
+    qppa3DphZwpsmZuKpjuqAAAADmdpdGh1Yi1hY3Rpb25zAQIDBAUGBw==
+    -----END OPENSSH PRIVATE KEY-----
+
+jobs:
   deploy:
-    needs: quality
     runs-on: ubuntu-latest
-    
     steps:
     - uses: actions/checkout@v2
       
@@ -60,4 +74,4 @@ jobs:
           cd /var/www/devops-demo
           docker-compose down || true
           docker build -t devops-demo .
-          docker-compose up -d 
+          docker-compose up -d
